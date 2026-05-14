@@ -1,5 +1,5 @@
 .sidebar {
-  width: calc(100vw / 6);
+  width: calc(100vw / 5);
   flex-shrink: 0;
   background: var(--sidebar-bg);
   display: flex;
@@ -52,7 +52,7 @@
 
 .socialLabel {
   color: var(--sidebar-text-muted);
-  font-size: 1.2rem;
+  font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   text-align: center;
@@ -65,7 +65,7 @@
 
   svg {
     opacity: 0.85;
-    height: 28px;
+    height: 34px;
     width: auto;
   }
 }
