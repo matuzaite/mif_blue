@@ -65,35 +65,59 @@ export default function NewsCarousel({ initialItems }: NewsCarouselProps) {
   };
 
   const scrollPosRef = useRef(0);
-  const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isPausedRef = useRef(false);
 
+  // Sync the pause state without restarting the animation loop
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
+
+  // 1. Reset scroll position ONLY when the slide actually changes
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = 0;
       scrollPosRef.current = 0;
     }
+  }, [currentIndex]);
 
-    if (scrollIntervalRef.current) clearInterval(scrollIntervalRef.current);
+  // 2. High-performance scroll engine built for older TVs
+  useEffect(() => {
+    let animationFrameId;
 
-    const delay = setTimeout(() => {
-      scrollIntervalRef.current = setInterval(() => {
-        if (scrollRef.current && !isPaused) {
-          const { scrollHeight, clientHeight } = scrollRef.current;
-          
+    const delayTimeout = setTimeout(() => {
+      if (!scrollRef.current) return;
+
+      // CACHE heights ONCE. This saves the S6 from burning out its CPU.
+      const scrollHeight = scrollRef.current.scrollHeight;
+      const clientHeight = scrollRef.current.clientHeight;
+
+      // If text doesn't overflow, don't waste memory running a loop
+      if (scrollHeight <= clientHeight) return;
+
+      const scrollAnimation = () => {
+        if (scrollRef.current && !isPausedRef.current) {
           if (scrollPosRef.current + clientHeight < scrollHeight - 2) {
-            // 20px per second / 30fps = 0.6px per tick
-            scrollPosRef.current += 0.6; 
-            scrollRef.current.scrollTop = Math.floor(scrollPosRef.current);
+            scrollPosRef.current += 0.5; // Scroll speed (approx 30px per sec on 60fps)
+            const newScrollTop = Math.floor(scrollPosRef.current);
+
+            // ONLY write to the DOM if the pixel actually changed to prevent flickering
+            if (scrollRef.current.scrollTop !== newScrollTop) {
+              scrollRef.current.scrollTop = newScrollTop;
+            }
           }
         }
-      }, 30); // ~33fps for stability
+        // Keep the loop alive seamlessly
+        animationFrameId = requestAnimationFrame(scrollAnimation);
+      };
+
+      animationFrameId = requestAnimationFrame(scrollAnimation);
     }, 2000);
 
     return () => {
-      clearTimeout(delay);
-      if (scrollIntervalRef.current) clearInterval(scrollIntervalRef.current);
+      clearTimeout(delayTimeout);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
-  }, [currentIndex, isPaused]);
+  }, [currentIndex]); // Now only triggers when the slide changes, not on hover
 
   useEffect(() => {
     // Daily hard reload at 3 AM to clear memory
