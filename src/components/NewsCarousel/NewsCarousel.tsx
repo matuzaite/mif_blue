@@ -21,9 +21,9 @@ export default function NewsCarousel({ initialItems }: NewsCarouselProps) {
       try {
         // Naudojame ir laiką, ir Math.random(), nes TV vidiniai laikrodžiai dažnai būna "užšalę"
         const res = await fetch(`/api/news?t=${new Date().getTime()}&r=${Math.random()}`);
-        
+
         const freshData = await res.json();
-        
+
         // Jei gavome naujienų, pakeičiame karuselės duomenis
         if (freshData && freshData.length > 0) {
           setItems(freshData);
@@ -40,7 +40,7 @@ export default function NewsCarousel({ initialItems }: NewsCarouselProps) {
 
     // Automatiškai ir tyliai fone ieškome naujų žinių kas 30 minučių (1800000 ms)
     const updateInterval = setInterval(fetchLatestNews, 1800000);
-    
+
     return () => clearInterval(updateInterval);
   }, []);
 
@@ -82,7 +82,7 @@ export default function NewsCarousel({ initialItems }: NewsCarouselProps) {
 
   // 2. High-performance scroll engine built for older TVs
   useEffect(() => {
-    let animationFrameId;
+    let animationFrameId: number = 0;
 
     const delayTimeout = setTimeout(() => {
       if (!scrollRef.current) return;
@@ -146,8 +146,8 @@ export default function NewsCarousel({ initialItems }: NewsCarouselProps) {
           const isActive = idx === currentIndex;
 
           return (
-            <div 
-              key={idx} 
+            <div
+              key={idx}
               className={`${styles.slide} ${isActive ? styles.activeSlide : styles.inactiveSlide}`}
             >
               {/* Left Column: Image and Headline */}
@@ -165,14 +165,14 @@ export default function NewsCarousel({ initialItems }: NewsCarouselProps) {
                   {item.category} | {item.date}
                 </div>
 
-                <div 
-                  ref={isActive ? scrollRef : null} 
+                <div
+                  ref={isActive ? scrollRef : null}
                   className={styles.articleBody}
                   onMouseEnter={() => setIsPaused(true)}
                   onMouseLeave={() => setIsPaused(false)}
                   tabIndex={0}
                 >
-                  <div 
+                  <div
                     dangerouslySetInnerHTML={{ __html: item.description }}
                   />
                 </div>
