@@ -60,13 +60,15 @@
 
 .socialIcons {
   display: flex;
-  gap: 10px;
+  gap: 16px; // Šiek tiek padidintas tarpas, kad atrodytų erdviau
   align-items: center;
+  justify-content: center; // Užtikrina, kad ikonos visada būtų centre
 
   svg {
     opacity: 0.85;
     height: 34px;
-    width: auto;
+    width: 34px; // Tikslus plotis vietoj "auto"
+    display: block; // Padeda senoms naršyklėms su SVG atvaizdavimu
   }
 }
 
