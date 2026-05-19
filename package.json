@@ -22,5 +22,10 @@
     "eslint-config-next": "16.2.1",
     "sass": "^1.99.0",
     "typescript": "^5"
-  }
+  },
+  "browserslist": [
+    "Chrome >= 56",
+    "Samsung >= 4"
+  ]
 }
+

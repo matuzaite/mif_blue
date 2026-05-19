@@ -118,7 +118,6 @@ export default function NewsCarousel({ initialItems }: NewsCarouselProps) {
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
   }, [currentIndex]); // Now only triggers when the slide changes, not on hover
-
   useEffect(() => {
     // Daily hard reload at 3 AM to clear memory
     const now = new Date();
@@ -136,6 +135,36 @@ export default function NewsCarousel({ initialItems }: NewsCarouselProps) {
 
     return () => clearTimeout(reloadTimeout);
   }, []);
+
+  // Detect and apply styles for vertical (portrait) images inside articles
+  useEffect(() => {
+    const processImages = () => {
+      const articleBodies = document.querySelectorAll(`.${styles.articleBody}`);
+      articleBodies.forEach((body) => {
+        const imgs = body.querySelectorAll('img');
+        imgs.forEach((img) => {
+          const handleImage = () => {
+            if (img.naturalHeight > img.naturalWidth) {
+              img.classList.add(styles.verticalImage);
+            } else {
+              img.classList.remove(styles.verticalImage);
+            }
+          };
+
+          if (img.complete) {
+            handleImage();
+          } else {
+            img.addEventListener('load', handleImage);
+          }
+        });
+      });
+    };
+
+    processImages();
+    // Run again after a short delay to ensure DOM is fully ready
+    const timeoutId = setTimeout(processImages, 100);
+    return () => clearTimeout(timeoutId);
+  }, [items]);
 
   if (items.length === 0) return <div className={styles.loading}>Naujienų nerasta</div>;
 
